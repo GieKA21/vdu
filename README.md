@@ -33,13 +33,13 @@ data, login admin, dan pemrosesan berjalan di Supabase.
 ```sh
 supabase link --project-ref <ref>
 supabase db push
-supabase secrets set OPENAI_API_KEY=... FONNTE_TOKEN=... ASAL_DIIZINKAN=https://higieka.web.id
+supabase secrets set OPENAI_API_KEY=... FONNTE_TOKEN=... WA_WEBHOOK_KUNCI=... ASAL_DIIZINKAN=https://higieka.web.id
 supabase functions deploy tanya indeks wa
 SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... ADMIN_EMAIL=... ADMIN_PASSWORD=... python3 skrip/isi_awal.py
 ```
 
 Setelah itu isi `web/assets/konfig.js`, lalu salin isi `web/` ke `vdu/` di repositori higieka.
-Pada dasbor Fonnte, isi alamat webhook dengan `https://<ref>.supabase.co/functions/v1/wa`.
+Pada dasbor Fonnte, isi alamat webhook dengan `https://<ref>.supabase.co/functions/v1/wa?kunci=<WA_WEBHOOK_KUNCI>`. Tanpa secret `WA_WEBHOOK_KUNCI`, webhook menolak semua permintaan.
 
 ## Menjalankan tampilan secara lokal
 

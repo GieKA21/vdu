@@ -5,7 +5,8 @@ const j = (data: unknown, status = 200) => new Response(JSON.stringify(data), { 
 
 Deno.serve(async (req) => {
   const kunci = Deno.env.get("WA_WEBHOOK_KUNCI");
-  if (kunci && new URL(req.url).searchParams.get("kunci") !== kunci) return j({ status: "ditolak" }, 401);
+  if (!kunci) return j({ status: "WA_WEBHOOK_KUNCI belum diatur" }, 503);
+  if (new URL(req.url).searchParams.get("kunci") !== kunci) return j({ status: "ditolak" }, 401);
   if (req.method === "GET") return j({ status: "Webhook aktif dan siap!" });
 
   let data: Record<string, unknown> = {};
@@ -26,6 +27,7 @@ Deno.serve(async (req) => {
   })();
   // Balas webhook segera; jawaban dikirim di latar belakang.
   // deno-lint-ignore no-explicit-any
-  (globalThis as any).EdgeRuntime?.waitUntil?.(tugas) ?? await tugas;
+  const runtime = (globalThis as any).EdgeRuntime;
+  if (runtime?.waitUntil) runtime.waitUntil(tugas); else await tugas;
   return j({ status: "sukses" });
 });

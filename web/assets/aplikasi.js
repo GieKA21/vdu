@@ -225,7 +225,14 @@ async function muatData(paksa = false) {
       const [dokumen, potongan, log, uji] = await Promise.all([
         ambil(s.from('dokumen').select('*').order('dibuat')),
         ambil(s.from('potongan').select('id,doc_id,urutan,halaman,teks').order('urutan')),
-        ambil(s.from('log_kueri').select('*').order('waktu', { ascending: false }).limit(2000)),
+        (async () => {
+          const semua = [];
+          for (let dari = 0; ; dari += 1000) {
+            const bagian = await ambil(s.from('log_kueri').select('*').order('waktu', { ascending: false }).order('id').range(dari, dari + 999));
+            semua.push(...bagian);
+            if (bagian.length < 1000) return semua;
+          }
+        })(),
         ambil(s.from('uji_kueri').select('*').order('no')),
       ]);
       const gambar = dokumen.filter((d) => d.tipe === 'gambar');
@@ -291,9 +298,9 @@ function halDokumen(d, w, aksi) {
   w.append(kisi);
 }
 async function bacaPdf(blob) {
-  const pdfjs = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs');
-  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs';
-  const pdf = await pdfjs.getDocument({ data: await blob.arrayBuffer() }).promise; const halaman = [];
+  const pdfjs = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.mjs');
+  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.mjs';
+  const pdf = await pdfjs.getDocument({ data: await blob.arrayBuffer(), isEvalSupported: false }).promise; const halaman = [];
   for (let i = 1; i <= pdf.numPages; i++) {
     const tc = await (await pdf.getPage(i)).getTextContent();
     halaman.push(tc.items.map((it) => it.str + (it.hasEOL ? '\n' : ' ')).join('').replace(/[ \t]+\n/g, '\n'));
@@ -393,9 +400,9 @@ function formUbah(x) {
     if (!yakin) { yakin = true; e.currentTarget.lastChild.textContent = 'Hapus permanen?'; return; }
     jalankan(e.currentTarget, async () => {
       const s = await sb();
-      await s.storage.from('dokumen').remove([x.berkas, `kecil/${x.id}.jpg`]);
       const { error } = await s.from('dokumen').delete().eq('id', x.id);
       if (error) throw new Error('Dokumen gagal dihapus.');
+      await s.storage.from('dokumen').remove([x.berkas, `kecil/${x.id}.jpg`]);
     }, 'Dokumen dihapus');
   });
   return f;
@@ -474,7 +481,8 @@ function halLog(d, w, aksi) {
 }
 function unduhLog(log) {
   const kol = ['waktu', 'kanal', 'pertanyaan', 'jawaban', 'latensi_total_s', 'latensi_retrieval_s', 'latensi_generasi_s', 'galat'];
-  const sel = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  // Awalan apostrof mencegah isi chat dijalankan sebagai rumus oleh aplikasi lembar kerja.
+  const sel = (v) => { const t = String(v ?? ''); return `"${(typeof v === 'string' && /^[=+\-@\t\r]/.test(t) ? "'" + t : t).replace(/"/g, '""')}"`; };
   const blob = new Blob(['\ufeff' + [kol.join(','), ...log.map((l) => kol.map((k) => sel(l[k])).join(','))].join('\n')], { type: 'text/csv;charset=utf-8' });
   const a = el('a', { href: URL.createObjectURL(blob), download: 'log_kueri.csv' }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }

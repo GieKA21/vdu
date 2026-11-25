@@ -48,11 +48,12 @@ Deno.serve(async (req) => {
     if (potongan.length > 400) return await gagal("Dokumen terlalu panjang untuk diindeks.");
 
     const vektor = await embed(potongan.map((p) => p.teks));
-    await db.from("potongan").delete().eq("doc_id", dok.id);
-    const { error: e2 } = await db.from("potongan").insert(potongan.map((p, i) => ({
+    // Timpa potongan lama lebih dulu agar kegagalan tidak mengosongkan indeks.
+    const { error: e2 } = await db.from("potongan").upsert(potongan.map((p, i) => ({
       id: `${dok.id}::${String(i).padStart(3, "0")}`, doc_id: dok.id, urutan: i, halaman: p.halaman, teks: p.teks, embedding: JSON.stringify(vektor[i]),
     })));
     if (e2) return await gagal("Potongan teks gagal disimpan.");
+    await db.from("potongan").delete().eq("doc_id", dok.id).gte("urutan", potongan.length);
 
     const akurasi_f1 = dok.tipe === "gambar" && dok.ground_truth ? hitungF1(ekstraksi, dok.ground_truth) : null;
     await db.from("dokumen").update({ ekstraksi, akurasi_f1, status_indeks: "terindeks", catatan: "", diperbarui: new Date().toISOString() }).eq("id", dok.id);
