@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cbot Upeks · Layanan Informasi Periklanan dan Sirkulasi</title>
+<meta name="description" content="Chatbot tanya jawab berbasis RAG dan Visual Document Understanding untuk layanan informasi periklanan dan sirkulasi PT Ujungpandang Ekspres Harian Bisnis.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1C4A48">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232B6663'/%3E%3Cpath d='M9 10h14M9 16h14M9 22h9' stroke='%23F3E3CC' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/gaya.css">
+<script>document.documentElement.classList.add('js')</script>
+<script type="module" src="assets/aplikasi.js"></script>
+</head>
+<body>
+<a class="lompat" href="#isi">Langsung ke isi</a>
+
+<header class="kepala">
+  <div class="kepala__dalam">
+    <a class="merek" href="#tanya" aria-label="Cbot Upeks, ke halaman tanya">
+      <span class="merek__judul">Cbot Upeks</span>
+      <span class="merek__sub">Harian Ujungpandang Ekspres · Layanan Periklanan &amp; Sirkulasi</span>
+    </a>
+    <button class="tombol-kunci" id="tombol-kunci" type="button" aria-haspopup="dialog">
+      <span class="titik" aria-hidden="true"></span><span id="label-kunci">Pasang kunci OpenAI</span>
+    </button>
+  </div>
+  <nav class="navigasi" aria-label="Menu utama">
+    <ul>
+      <li><a href="#tanya" data-menu="tanya">Tanya</a></li>
+      <li><a href="#dokumen" data-menu="dokumen">Dokumen</a></li>
+      <li><a href="#evaluasi" data-menu="evaluasi">Evaluasi VDU</a></li>
+      <li><a href="#uji" data-menu="uji">Uji 50 kueri</a></li>
+      <li><a href="#log" data-menu="log">Log kueri</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="isi" tabindex="-1">
+
+  <!-- TANYA -->
+  <section class="layar layar--tanya" id="layar-tanya" data-layar="tanya" aria-labelledby="judul-tanya">
+    <div class="tanya">
+      <div class="tanya__utama">
+        <h1 class="visually-hidden" id="judul-tanya">Tanya Cbot Upeks</h1>
+        <div class="percakapan" id="percakapan" aria-live="polite">
+          <div class="sambutan" id="sambutan">
+            <p class="sambutan__judul">Ada yang bisa dibantu?</p>
+            <p class="sambutan__teks">Tanyakan tarif iklan, syarat pemasangan, harga langganan koran, atau profil perusahaan. Jawaban hanya diambil dari dokumen resmi Upeks.</p>
+            <div class="contoh" id="contoh"></div>
+          </div>
+        </div>
+        <form class="isian" id="form-tanya" autocomplete="off">
+          <label class="visually-hidden" for="masukan">Pertanyaan</label>
+          <textarea id="masukan" rows="1" maxlength="1000" placeholder="Tulis pertanyaan Anda" required></textarea>
+          <button class="tombol tombol--utama" id="tombol-kirim" type="submit">Kirim</button>
+        </form>
+        <p class="isian__catatan" id="catatan-mode"></p>
+      </div>
+      <aside class="tanya__samping" aria-label="Dokumen rujukan">
+        <h2 class="samping__judul">Dokumen rujukan</h2>
+        <ul class="rujukan" id="daftar-rujukan"></ul>
+        <button class="tombol tombol--garis tombol--penuh" id="tombol-reset" type="button">Mulai percakapan baru</button>
+      </aside>
+    </div>
+  </section>
+
+  <!-- DOKUMEN -->
+  <section class="layar" id="layar-dokumen" data-layar="dokumen" aria-labelledby="judul-dokumen" hidden>
+    <div class="layar__kepala">
+      <h1 id="judul-dokumen">Dokumen</h1>
+      <button class="tombol tombol--utama" id="tombol-tambah" type="button">Tambah dokumen</button>
+    </div>
+    <div class="angka-baris" id="ringkas-dokumen"></div>
+    <div class="kisi-dokumen" id="kisi-dokumen"></div>
+  </section>
+
+  <!-- EVALUASI -->
+  <section class="layar" id="layar-evaluasi" data-layar="evaluasi" aria-labelledby="judul-evaluasi" hidden>
+    <div class="layar__kepala"><h1 id="judul-evaluasi">Evaluasi ekstraksi VDU</h1></div>
+    <div class="angka-baris" id="ringkas-evaluasi"></div>
+    <div class="panel">
+      <h2>F1 per poster</h2>
+      <div class="batang" id="batang-f1"></div>
+    </div>
+    <div class="panel">
+      <div class="panel__kepala">
+        <h2>Bandingkan hasil ekstraksi dengan ground truth</h2>
+        <div class="segmen" id="pilih-poster" role="radiogroup" aria-label="Pilih poster"></div>
+      </div>
+      <div class="legenda">
+        <label><input type="checkbox" id="tanda-hilang" checked> <mark class="hilang">Terlewat oleh VDU</mark></label>
+        <label><input type="checkbox" id="tanda-lebih" checked> <mark class="lebih">Tidak ada di ground truth</mark></label>
+      </div>
+      <div class="banding" id="banding"></div>
+    </div>
+  </section>
+
+  <!-- UJI -->
+  <section class="layar" id="layar-uji" data-layar="uji" aria-labelledby="judul-uji" hidden>
+    <div class="layar__kepala"><h1 id="judul-uji">Uji 50 kueri</h1></div>
+    <div class="angka-baris" id="ringkas-uji"></div>
+    <div class="dua-kolom">
+      <div class="panel"><h2>Penarikan per dokumen</h2><div id="tabel-per-dokumen"></div></div>
+      <div class="panel"><h2>Penarikan per gaya bahasa</h2><div id="tabel-per-gaya"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel__kepala">
+        <h2>Daftar kueri</h2>
+        <div class="saring">
+          <label class="visually-hidden" for="cari-uji">Cari kueri</label>
+          <input type="search" id="cari-uji" placeholder="Cari pertanyaan atau jawaban">
+          <label class="visually-hidden" for="saring-kategori">Kategori</label>
+          <select id="saring-kategori"><option value="">Semua kategori</option><option>In-Domain</option><option>Out-of-Domain</option></select>
+          <label class="visually-hidden" for="saring-gaya">Gaya bahasa</label>
+          <select id="saring-gaya"><option value="">Semua gaya</option><option>Baku</option><option>Makassar</option></select>
+        </div>
+      </div>
+      <p class="jumlah-tampil" id="jumlah-uji"></p>
+      <ol class="daftar-uji" id="daftar-uji"></ol>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section class="layar" id="layar-log" data-layar="log" aria-labelledby="judul-log" hidden>
+    <div class="layar__kepala">
+      <h1 id="judul-log">Log kueri</h1>
+      <button class="tombol tombol--garis" id="unduh-log" type="button">Unduh CSV</button>
+    </div>
+    <div class="angka-baris" id="ringkas-log"></div>
+    <div class="dua-kolom">
+      <div class="panel"><h2>Waktu respons per kanal</h2><div id="tabel-kanal"></div></div>
+      <div class="panel"><h2>Sebaran waktu respons</h2><div class="sebaran" id="sebaran"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel__kepala">
+        <h2>Kueri terbaru</h2>
+        <div class="saring">
+          <label class="visually-hidden" for="cari-log">Cari log</label>
+          <input type="search" id="cari-log" placeholder="Cari pertanyaan">
+          <label class="visually-hidden" for="saring-kanal">Kanal</label>
+          <select id="saring-kanal"><option value="">Semua kanal</option></select>
+        </div>
+      </div>
+      <p class="jumlah-tampil" id="jumlah-log"></p>
+      <ol class="daftar-log" id="daftar-log"></ol>
+      <button class="tombol tombol--garis" id="muat-log" type="button" hidden>Tampilkan lebih banyak</button>
+      <p class="catatan-kecil" id="catatan-log-lokal" hidden></p>
+    </div>
+  </section>
+</main>
+
+<footer class="kaki">
+  <p>Cbot Upeks, sistem chatbot question answering berbasis RAG dan Visual Document Understanding (GPT-4o-mini) untuk PT Ujungpandang Ekspres Harian Bisnis. Kunci OpenAI dipakai langsung dari peramban Anda dan tidak dikirim ke tempat lain.</p>
+</footer>
+
+<!-- Dialog kunci -->
+<dialog class="dialog" id="dialog-kunci" aria-labelledby="judul-dialog-kunci">
+  <form method="dialog" class="dialog__isi" id="form-kunci">
+    <h2 id="judul-dialog-kunci">Kunci API OpenAI</h2>
+    <p>Dengan kunci, pertanyaan dicari memakai embedding <code>text-embedding-3-small</code> dan dijawab oleh <code>gpt-4o-mini</code>, sama seperti aplikasi aslinya. Tanpa kunci, Cbot memakai pencarian kata kunci dan menampilkan potongan dokumen yang paling cocok.</p>
+    <label for="isian-kunci">Kunci</label>
+    <input type="password" id="isian-kunci" placeholder="sk-..." autocomplete="off" spellcheck="false">
+    <label class="centang"><input type="checkbox" id="ingat-kunci"> Ingat selama tab ini terbuka</label>
+    <p class="pesan-dialog" id="pesan-kunci" role="status"></p>
+    <div class="dialog__aksi">
+      <button class="tombol tombol--teks" value="batal" type="submit" formnovalidate>Tutup</button>
+      <button class="tombol tombol--garis" id="hapus-kunci" type="button">Lepas kunci</button>
+      <button class="tombol tombol--utama" id="simpan-kunci" type="button">Uji dan pakai</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Dialog pratinjau dokumen -->
+<dialog class="dialog dialog--lebar" id="dialog-dokumen" aria-labelledby="judul-pratinjau">
+  <div class="dialog__isi">
+    <div class="dialog__kepala">
+      <h2 id="judul-pratinjau"></h2>
+      <button class="tombol tombol--teks tutup" type="button" data-tutup aria-label="Tutup pratinjau">Tutup</button>
+    </div>
+    <div class="tab" role="tablist" id="tab-pratinjau"></div>
+    <div class="pratinjau" id="isi-pratinjau"></div>
+  </div>
+</dialog>
+
+<!-- Dialog tambah dokumen -->
+<dialog class="dialog" id="dialog-tambah" aria-labelledby="judul-tambah">
+  <form class="dialog__isi" id="form-tambah">
+    <h2 id="judul-tambah">Tambah dokumen</h2>
+    <p>Dokumen diproses dengan kunci OpenAI Anda dan disimpan di peramban ini saja.</p>
+    <fieldset class="pilihan-jenis">
+      <legend>Jenis dokumen</legend>
+      <label><input type="radio" name="jenis" value="gambar" checked> Poster atau gambar (VDU)</label>
+      <label><input type="radio" name="jenis" value="pdf"> PDF regulasi atau panduan</label>
+    </fieldset>
+    <label for="judul-baru">Judul dokumen</label>
+    <input id="judul-baru" required maxlength="120" placeholder="Contoh: Tarif Iklan 2026">
+    <label for="berkas-baru">Berkas</label>
+    <input type="file" id="berkas-baru" accept=".png,.jpg,.jpeg" required>
+    <div id="baris-gt">
+      <label for="gt-baru">Ground truth (opsional, .txt) untuk menghitung F1</label>
+      <input type="file" id="gt-baru" accept=".txt">
+    </div>
+    <progress id="progres-tambah" max="100" value="0" hidden></progress>
+    <p class="pesan-dialog" id="pesan-tambah" role="status"></p>
+    <div class="dialog__aksi">
+      <button class="tombol tombol--teks" type="button" data-tutup>Batal</button>
+      <button class="tombol tombol--utama" type="submit" id="kirim-tambah">Proses dan indeks</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+    "data/images/1.png": {
+        "akurasi": 88.96,
+        "status": "Sukses"
+    },
+    "data/images/2.png": {
+        "akurasi": 65.22,
+        "status": "Sukses"
+    },
+    "data/images/3.png": {
+        "akurasi": 90.23,
+        "status": "Sukses"
+    }
+}

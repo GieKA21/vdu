@@ -1,0 +1,54 @@
+[
+  {
+    "id": "doc-1",
+    "judul": "Profil Perusahaan",
+    "tipe": "gambar",
+    "berkas": "data/images/1.png",
+    "ground_truth": "data/ground_truth/1_gt.txt",
+    "status_indeks": "terindeks",
+    "jumlah_chunk": 14,
+    "akurasi_f1": 88.96,
+    "catatan": "",
+    "dibuat": "2026-11-09T21:05:02",
+    "diperbarui": "2026-11-13T23:30:32"
+  },
+  {
+    "id": "doc-2",
+    "judul": "Tarif Iklan dan Berlangganan",
+    "tipe": "gambar",
+    "berkas": "data/images/2.png",
+    "ground_truth": "data/ground_truth/2_gt.txt",
+    "status_indeks": "terindeks",
+    "jumlah_chunk": 7,
+    "akurasi_f1": 65.22,
+    "catatan": "",
+    "dibuat": "2026-11-09T21:05:02",
+    "diperbarui": "2026-11-11T21:42:31"
+  },
+  {
+    "id": "doc-3",
+    "judul": "Persyaratan Administrasi dan Pemasangan",
+    "tipe": "gambar",
+    "berkas": "data/images/3.png",
+    "ground_truth": "data/ground_truth/3_gt.txt",
+    "status_indeks": "terindeks",
+    "jumlah_chunk": 7,
+    "akurasi_f1": 90.23,
+    "catatan": "",
+    "dibuat": "2026-11-09T21:05:02",
+    "diperbarui": "2026-11-11T21:42:43"
+  },
+  {
+    "id": "doc-7f34b08e",
+    "judul": "File Regulasi",
+    "tipe": "pdf",
+    "berkas": "data/pdf/doc-7f34b08e.pdf",
+    "ground_truth": null,
+    "status_indeks": "terindeks",
+    "jumlah_chunk": 16,
+    "akurasi_f1": null,
+    "catatan": "",
+    "dibuat": "2026-11-13T23:32:25",
+    "diperbarui": "2026-11-13T23:32:27"
+  }
+]
