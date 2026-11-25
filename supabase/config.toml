@@ -1,0 +1,8 @@
+[functions.tanya]
+verify_jwt = false
+
+[functions.wa]
+verify_jwt = false
+
+[functions.indeks]
+verify_jwt = true
