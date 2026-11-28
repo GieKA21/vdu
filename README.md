@@ -2,7 +2,7 @@
 
 Chatbot tanya jawab berbasis Retrieval-Augmented Generation (RAG) dan Visual Document
 Understanding (VDU) untuk layanan informasi periklanan dan sirkulasi PT Ujungpandang
-Ekspres Harian Bisnis. Tampilannya tayang di <https://higieka.web.id/vdu/>, sedangkan
+Ekspres Harian Bisnis. Tampilannya tayang di <https://higieka.web.id/upeks/>, sedangkan
 data, login admin, dan pemrosesan berjalan di Supabase.
 
 ## Isi repositori
